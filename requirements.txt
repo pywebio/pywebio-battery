@@ -1,0 +1,6 @@
+pywebio
+
+# test requirements
+coverage
+playwright
+requests
