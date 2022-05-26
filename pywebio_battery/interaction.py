@@ -97,7 +97,7 @@ def run_shell(cmd, output_func=partial(put_text, inline=True)):
 
 
 def put_logbox(name, height=400, keep_bottom=True) -> Output:
-    """Output a logbox widget
+    r"""Output a logbox widget
 
     ::
 
