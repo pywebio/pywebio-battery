@@ -96,14 +96,42 @@ def run_shell(cmd, output_func=partial(put_text, inline=True)):
             break
 
 
-def put_logbox(name, height=None) -> Output:
+def put_logbox(name, height=400, keep_bottom=True) -> Output:
     """Output a logbox widget
 
-    :param str name:
+    ::
+
+        import time
+
+        put_logbox("log")
+        while True:
+            logbox_append("log", f"{time.time()}\n")
+            time.sleep(0.2)
+
+    :param str name: the name of the widget, must unique in session-wide.
     :param int height: the height of the widget in pixel
+    :param bool keep_bottom: Whether to scroll to bottom when new content is appened
+        (via `logbox_append()`).
+
+    .. versionchanged:: 0.3
+       add ``keep_bottom`` parameter
     """
-    html = '<pre><code id="webio-logbox-%s"></code></pre>' % name
-    return put_html(html).style('height:%spx' % height if height else '')
+    dom_id = "webio-logbox-%s" % name
+    style = 'height:%spx' % height if height else ''
+    html = '<pre style="%s" tabindex="0"><code id="%s"></code></pre>' % (style,dom_id)
+    if keep_bottom:
+        html += """
+         <script>
+             (function(){
+                 let div = document.getElementById(%r).parentElement, stop=false;
+                 $(div).on('focusin', function(e){ stop=true }).on('focusout', function(e){ stop=false });;
+                 new MutationObserver(function (mutations, observe) {
+                     if(!stop) $(div).stop().animate({ scrollTop: div.scrollHeight}, 300);
+                 }).observe(div, { childList: true, subtree:true });
+             })();
+         </script>
+         """ % dom_id
+    return put_html(html)
 
 
 def logbox_append(name, text):
