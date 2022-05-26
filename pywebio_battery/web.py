@@ -73,4 +73,3 @@ def get_cookie(key):
     """Get cookie"""
     _init_cookie_client()
     return eval_js("getCookie(key)", key=key)
-

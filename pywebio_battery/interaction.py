@@ -110,7 +110,7 @@ def put_logbox(name, height=400, keep_bottom=True) -> Output:
 
     :param str name: the name of the widget, must unique in session-wide.
     :param int height: the height of the widget in pixel
-    :param bool keep_bottom: Whether to scroll to bottom when new content is appened
+    :param bool keep_bottom: Whether to scroll to bottom when new content is appended
         (via `logbox_append()`).
 
     .. versionchanged:: 0.3
@@ -118,7 +118,7 @@ def put_logbox(name, height=400, keep_bottom=True) -> Output:
     """
     dom_id = "webio-logbox-%s" % name
     style = 'height:%spx' % height if height else ''
-    html = '<pre style="%s" tabindex="0"><code id="%s"></code></pre>' % (style,dom_id)
+    html = '<pre style="%s" tabindex="0"><code id="%s"></code></pre>' % (style, dom_id)
     if keep_bottom:
         html += """
          <script>

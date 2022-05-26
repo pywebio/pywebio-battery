@@ -3,7 +3,6 @@ from subprocess import Popen
 from playwright.sync_api._generated import Browser, BrowserContext, Page
 import util
 from pywebio_battery import *
-from pywebio_battery.web import login
 from pywebio.output import *
 from pywebio.session import eval_js, run_js
 
@@ -16,11 +15,12 @@ def target():
         assert get_cookie('pywebio') == 'awesome'
 
         put_text('All test passed')
+        return
 
     set_localstorage('pywebio', 'awesome')
     set_cookie('pywebio', 'awesome')
-    user = login(basic_auth=lambda u, p: u == p == 'pywebio', salt='secret')
-    assert user == 'pywebio'
+    # user = login(basic_auth=lambda u, p: u == p == 'pywebio', salt='secret')
+    # assert user == 'pywebio'
 
     url = eval_js('window.location.href')
     if '?' in url:
@@ -33,17 +33,17 @@ def target():
 
 def test(server_proc: Popen, browser: Browser, context: BrowserContext, page: Page):
     # Click input[name="username"]
-    page.locator("input[name=\"username\"]").click()
+    # page.locator("input[name=\"username\"]").click()
     # Fill input[name="username"]
-    page.locator("input[name=\"username\"]").fill("pywebio")
-
-    page.locator("input[name=\"password\"]").click()
-    # Fill input[name="password"]
-    page.locator("input[name=\"password\"]").fill("pywebio")
-    # Click text=Submit
-    # with page.expect_navigation(url="http://127.0.0.1:8080/?a=1&b=2&c=3"):
-    with page.expect_navigation():
-        page.locator("text=Submit").click()
+    # page.locator("input[name=\"username\"]").fill("pywebio")
+    #
+    # page.locator("input[name=\"password\"]").click()
+    # # Fill input[name="password"]
+    # page.locator("input[name=\"password\"]").fill("pywebio")
+    # # Click text=Submit
+    # # with page.expect_navigation(url="http://127.0.0.1:8080/?a=1&b=2&c=3"):
+    # with page.expect_navigation():
+    #     page.locator("text=Submit").click()
 
     time.sleep(1)
     assert 'All test passed' in page.inner_text('body')
