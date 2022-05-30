@@ -136,4 +136,4 @@ def put_logbox(name, height=400, keep_bottom=True) -> Output:
 
 def logbox_append(name, text):
     """Append text to a logbox widget"""
-    run_js('$("#webio-logbox-%s").append(text)' % name, text=str(text))
+    run_js('$("#webio-logbox-%s").append(document.createTextNode(text))' % name, text=str(text))
