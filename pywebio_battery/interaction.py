@@ -15,21 +15,33 @@ def confirm(title, content=None, *, timeout=None):
     """Show a confirmation modal.
 
     :param str title: Model title.
-    :param list/put_xxx() content: Model content.
+    :param list/put_xxx()/str content: Model content.
+    :type content: list/str/put_xxx()
+    :param content: The content of the confirmation modal. Can be a string, the put_xxx() calls , or a list of them.
     :param None/float timeout: Seconds for operation time out.
     :return: Return `True` when the "CONFIRM" button is clicked,
         return `False` when the "CANCEL" button is clicked,
         return `None` when a timeout is given and the operation times out.
+
+    .. exportable-codeblock::
+        :name: battery-confirm
+        :summary: Blocking confirmation modal
+
+        from pywebio_battery import confirm  # ..demo-only
+        # ..demo-only
+        choice = confirm("Delete File", "Are you sure to delete this file?")
+        put_text("Your choice", choice)
     """
     if content is None:
         content = []
     if not isinstance(content, list):
         content = [content]
     action_name = random_str(10)
+
     content.append(put_actions(action_name, buttons=[
         {'label': 'CONFIRM', 'value': True},
         {'label': 'CANCEL', 'value': False, 'color': 'danger'},
-    ]))
+    ]).style('margin-top: 1rem; float: right;'))
     popup(title=title, content=content, closable=False)
     result = pin_wait_change(action_name, timeout=timeout)
     if result:
@@ -44,6 +56,18 @@ def popup_input(pins, title='Please fill out the form below'):
     :param list pins: pin output list.
     :param str title: model title.
     :return: return the form value as dict, return None when user cancel the form.
+
+    .. exportable-codeblock::
+        :name: battery-popup-input
+        :summary: Blocking form in the popup.
+
+        from pywebio_battery import popup_input  # ..demo-only
+        # ..demo-only
+        form = popup_input([
+            put_input("username", label="Username"),
+            put_input("password", type=PASSWORD, label="Password"),
+        ], "Login")
+        put_text("Login info:", form)
     """
     if not isinstance(pins, list):
         pins = [pins]
@@ -99,8 +123,12 @@ def run_shell(cmd, output_func=partial(put_text, inline=True)):
 def put_logbox(name, height=400, keep_bottom=True) -> Output:
     r"""Output a logbox widget
 
-    ::
+    .. exportable-codeblock::
+        :name: battery-put-logbox
+        :summary: Logbox widget
 
+        from pywebio_battery import put_logbox, logbox_append   # ..demo-only
+        # ..demo-only
         import time
 
         put_logbox("log")
