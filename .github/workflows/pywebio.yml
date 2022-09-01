@@ -1,0 +1,19 @@
+name: Rebuild pywebio doc and demos
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: demo build
+        run: |
+          curl -XPOST -u "${{ secrets.PYWEBIO_USERNAME}}:${{secrets.PYWEBIO_TOKEN}}" -H "Accept: application/vnd.github.everest-preview+json" -H "Content-Type: application/json" https://api.github.com/repos/pywebio/pywebio/dispatches --data '{"event_type": "build_application"}'
+      - name: doc build
+        run: |
+          curl -X POST -H "Authorization: Token ${{ secrets.DOC_TOKEN}}" https://readthedocs.org/api/v3/projects/pywebio/versions/latest/builds/
+          curl -X POST -H "Authorization: Token ${{ secrets.DOC_TOKEN}}" https://readthedocs.org/api/v3/projects/pywebio-persian/versions/latest/builds/
+          curl -X POST -H "Authorization: Token ${{ secrets.DOC_TOKEN}}" https://readthedocs.org/api/v3/projects/pywebio-zh-cn/versions/latest/builds/
