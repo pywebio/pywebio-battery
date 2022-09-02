@@ -108,16 +108,27 @@ def redirect_stdout(output_func=partial(put_text, inline=True)):
     return redirect_stdout(WebIO())
 
 
-def run_shell(cmd, output_func=partial(put_text, inline=True)):
-    """Run command in shell and output the result to pywebio"""
+def run_shell(cmd: str, output_func=partial(put_text, inline=True), encoding='utf8') -> int:
+    """Run command in shell and output the result to pywebio
+
+    :param str cmd: command to run
+    :param callable output_func: output function, default to `put_text()`.
+        the function should accept one argument, the output text of command.
+    :param str encoding: command output encoding
+    :return: shell command return code
+
+    .. versionchanged:: 0.4
+       add ``encoding`` parameter and return code
+    """
     process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     while True:
         out = process.stdout.readline()
         if out:
-            output_func(out.decode('utf8'))
+            output_func(out.decode(encoding))
 
         if not out and process.poll() is not None:
             break
+    return process.poll()
 
 
 def put_logbox(name, height=400, keep_bottom=True) -> Output:
