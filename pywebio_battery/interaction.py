@@ -126,13 +126,17 @@ def run_shell(cmd: str, output_func=partial(put_text, inline=True), encoding='ut
        add ``encoding`` parameter and return code
     """
     process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    while True:
-        out = process.stdout.readline()
-        if out:
-            output_func(out.decode(encoding))
+    try:
+        while True:
+            out = process.stdout.readline()
+            if out:
+                output_func(out.decode(encoding))
 
-        if not out and process.poll() is not None:
-            break
+            if not out and process.poll() is not None:
+                break
+    finally:
+        process.kill()
+        process.stdout.close()
     return process.poll()
 
 
