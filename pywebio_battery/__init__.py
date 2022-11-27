@@ -53,7 +53,8 @@ Web application related
    * - `set_cookie <pywebio_battery.set_cookie>`, `get_cookie <pywebio_battery.get_cookie>`
      - Web Cookie
 
-   * - `login <pywebio_battery.login>`
+   * - `basic_auth <pywebio_battery.basic_auth>`, `custom_auth <pywebio_battery.custom_auth>`,
+       `revoke_auth <pywebio_battery.revoke_auth>`
      - Authentication
 
 """
