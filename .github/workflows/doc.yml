@@ -1,17 +1,26 @@
 name: Rebuild pywebio doc and demos
 
+#on:
+#  push:
+#    branches:
+#      - master
+
+
+# https://github.community/t/how-to-run-github-actions-workflow-only-for-new-tags/16075/22
 on:
   push:
-    branches:
-      - master
+    tags:
+      - v*
 
 jobs:
   dispatch:
     runs-on: ubuntu-latest
     steps:
+      - name: wait pypi
+        run: sleep 600
       - name: demo build
         run: |
-          curl -XPOST -u "${{ secrets.PYWEBIO_USERNAME}}:${{secrets.PYWEBIO_TOKEN}}" -H "Accept: application/vnd.github.everest-preview+json" -H "Content-Type: application/json" https://api.github.com/repos/pywebio/pywebio/dispatches --data '{"event_type": "build_application"}'
+          curl -XPOST -u "${{ secrets.PYWEBIO_USERNAME}}:${{secrets.PYWEBIO_TOKEN}}" -H "Accept: application/vnd.github.everest-preview+json" -H "Content-Type: application/json" https://api.github.com/repos/pywebio/pywebio/dispatches --data '{"event_type": "pywebio-battery update"}'
       - name: doc build
         run: |
           curl -X POST -H "Authorization: Token ${{ secrets.DOC_TOKEN}}" https://readthedocs.org/api/v3/projects/pywebio/versions/latest/builds/
