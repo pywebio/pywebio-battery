@@ -1,14 +1,19 @@
-from pywebio.output import *
-from pywebio.input import *
-from pywebio.session import *
-from pywebio.pin import *
-from pywebio.utils import random_str
-from pywebio.output import Output
+import base64
+import html
 import io
-from functools import partial
 import subprocess
+from functools import partial
+from typing import Union
 
-__all__ = ['confirm', 'popup_input', 'redirect_stdout', 'run_shell', 'put_logbox', 'logbox_append']
+from pywebio.output import *
+from pywebio.output import Output
+from pywebio.output import OutputPosition
+from pywebio.pin import *
+from pywebio.session import *
+from pywebio.utils import random_str
+
+__all__ = ['confirm', 'popup_input', 'redirect_stdout', 'run_shell', 'put_logbox', 'logbox_append', 'put_video',
+           'put_audio']
 
 
 def confirm(title, content=None, *, timeout=None):
@@ -176,3 +181,84 @@ def put_logbox(name, height=400, keep_bottom=True) -> Output:
 def logbox_append(name, text):
     """Append text to a logbox widget"""
     run_js('$("#webio-logbox-%s").append(document.createTextNode(text))' % name, text=str(text))
+
+
+def put_video(src: Union[str, bytes], autoplay: bool = False, loop: bool = False,
+              height: int = None, width: int = None, muted: bool = False, poster: str = None, scope: str = None,
+              position: int = OutputPosition.BOTTOM) -> Output:
+    """Output video
+
+    :param str/bytes src: Source of video. It can be a string specifying video URL, a bytes-like object specifying
+        the binary content of the video.
+    :param bool autoplay: Whether to autoplay the video.
+        In some browsers (e.g. Chrome 70.0) autoplay doesn't work if not enable ``muted``.
+    :param bool loop: If True, the browser will automatically seek back to the start upon reaching the end of the video.
+    :param int width: The width of the video's display area, in CSS pixels. If not specified, the intrinsic width of
+        the video is used.
+    :param int height: The height of the video's display area, in CSS pixels. If not specified, the intrinsic height of
+        the video is used.
+    :param bool muted: If set, the audio will be initially silenced.
+    :param str poster: A URL for an image to be shown while the video is downloading. If this attribute isn't specified,
+        nothing is displayed until the first frame is available, then the first frame is shown as the poster frame.
+    :param int scope, position: Those arguments have the same meaning as for :func:`put_text() <pywebio.output.put_text>`
+
+    Example:
+
+    .. exportable-codeblock::
+        :name: put_video
+        :summary: `put_video()` usage
+
+        url = "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+        put_video(url)
+
+    .. versionadded:: 0.4
+    """
+    kwargs = locals()
+    if isinstance(src, (bytes, bytearray)):
+        src = 'data:video/mp4;base64, ' + base64.b64encode(src).decode('ascii')
+
+    tag_fields = ['autoplay', 'loop', 'muted']
+    tags = ' '.join(t for t in tag_fields if kwargs[t])
+    value_fields = ['height', 'width', 'poster']
+
+    values = ' '.join('%s="%s"' % (k, html.escape(kwargs[k], quote=True))
+                      for k in value_fields if kwargs[k] is not None)
+
+    tag = r'<video src="{src}" controls {tags} {values} preload="metadata"><video/>'.format(
+        src=src, tags=tags, values=values)
+    return put_html(tag, scope=scope, position=position)
+
+
+def put_audio(src: Union[str, bytes], autoplay: bool = False, loop: bool = False,
+              muted: bool = False, scope: str = None, position: int = OutputPosition.BOTTOM) -> Output:
+    """Output audio
+
+    :param str/bytes src: Source of audio. It can be a string specifying video URL, a bytes-like object specifying
+        the binary content of the audio.
+    :param bool autoplay: Whether to autoplay the audio.
+    :param bool loop: If True, the browser will automatically seek back to the start upon reaching the end of the audio.
+    :param bool muted: If set, the audio will be initially silenced.
+    :param scope: The scope of the video. It can be ``"session"`` or ``"page"``. If not specified,
+        the video will be automatically removed when the session is closed.
+    :param int scope, position: Those arguments have the same meaning as for :func:`put_text() <pywebio.output.put_text>`
+
+    Example:
+
+    .. exportable-codeblock::
+        :name: put_audio
+        :summary: `put_audio()` usage
+
+        url = "https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3"
+        put_audio(url)
+
+    .. versionadded:: 0.4
+    """
+    kwargs = locals()
+    if isinstance(src, (bytes, bytearray)):
+        src = 'data:audio/wav;base64, ' + base64.b64encode(src).decode('ascii')
+
+    tag_fields = ['autoplay', 'loop', 'muted']
+    tags = ' '.join(t for t in tag_fields if kwargs[t])
+
+    tag = r'<audio src="{src}" {tags} controls preload="metadata"><audio/>'.format(src=src, tags=tags)
+    return put_html(tag, scope=scope, position=position)

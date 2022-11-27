@@ -35,6 +35,12 @@ Interaction related
    * - `put_logbox <pywebio_battery.put_logbox>`, `logbox_append <pywebio_battery.logbox_append>`
      - Logbox widget
 
+   * - `put_video <pywebio_battery.put_video>`
+     - Output video
+
+   * - `put_audio <pywebio_battery.put_audio>`
+     - Output audio
+
 
 Web application related
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
