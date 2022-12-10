@@ -80,10 +80,8 @@ def get_cookie(key):
     return eval_js("getCookie(key)", key=key)
 
 
-_auth_token_name = 'pywebio_auth_token'
-
-
-def basic_auth(verify_func: Callable[[str, str], bool], secret: Union[str, bytes], expire_days=7) -> str:
+def basic_auth(verify_func: Callable[[str, str], bool], secret: Union[str, bytes],
+               expire_days=7, token_name='pywebio_auth_token') -> str:
     """Persistence authentication with username and password.
 
     You need to provide a function to verify the current user based on username and password. The ``basic_auth()``
@@ -95,7 +93,10 @@ def basic_auth(verify_func: Callable[[str, str], bool], secret: Union[str, bytes
     :param str secret: HMAC secret for the signature. It should be a long, random str.
     :param int expire_days: how many days the auth state can keep valid.
        After this time, authed users need to log in again.
+    :param str token_name: the name of the token to store the auth state in user browser.
     :return str: username of the current authed user
+
+    Example:
 
     .. exportable-codeblock::
         :name: basic_auth
@@ -107,9 +108,11 @@ def basic_auth(verify_func: Callable[[str, str], bool], secret: Union[str, bytes
 
     """
 
-    token = get_localstorage(_auth_token_name)  # get token from user's web browser
+    token = get_localstorage(token_name)  # get token from user's web browser
     # try to decrypt the username from the token
-    username = decode_signed_value(secret, _auth_token_name, token, max_age_days=expire_days)
+    username = decode_signed_value(secret, token_name, token, max_age_days=expire_days)
+    if username:
+        username = username.decode('utf8')
     if not token or not username:  # no token or token validation failed
         while True:
             user = input_group('Login', [
@@ -120,17 +123,17 @@ def basic_auth(verify_func: Callable[[str, str], bool], secret: Union[str, bytes
             ok = verify_func(username, user['password'])
             if ok:
                 # encrypt username to token
-                signed = create_signed_value(secret, _auth_token_name, username).decode("utf-8")
-                set_localstorage(_auth_token_name, signed)  # set token to user's web browser
+                signed = create_signed_value(secret, token_name, username).decode("utf-8")
+                set_localstorage(token_name, signed)  # set token to user's web browser
                 break
             else:
                 toast('Username or password is incorrect', color='error')
-    if username:
-        username = username.decode('utf8')
+
     return username
 
 
-def custom_auth(login_func: Callable[[], str] = None, secret=Union[str, bytes], expire_days=7) -> str:
+def custom_auth(login_func: Callable[[], str], secret=Union[str, bytes], expire_days=7,
+                token_name='pywebio_auth_token') -> str:
     """Persistence authentication with custom logic.
 
     You need to provide a function to determine the current user and return the username. The ``custom_auth()``
@@ -142,28 +145,32 @@ def custom_auth(login_func: Callable[[], str] = None, secret=Union[str, bytes], 
     :param str secret: HMAC secret for the signature. It should be a long, random str.
     :param int expire_days: how many days the auth state can keep valid.
        After this time,authed users need to log in again.
+    :param str token_name: the name of the token to store the auth state in user browser.
     :return str: username of the current authed user
     """
 
-    token = get_localstorage(_auth_token_name)  # get token from user's web browser
+    token = get_localstorage(token_name)  # get token from user's web browser
     # try to decrypt the username from the token
-    username = decode_signed_value(secret, _auth_token_name, token, max_age_days=expire_days)
+    username = decode_signed_value(secret, token_name, token, max_age_days=expire_days)
+    if username:
+        username = username.decode('utf8')
     if not token or not username:  # no token or token validation failed
         while True:
             username = login_func()
             if username:
                 # encrypt username to token
-                signed = create_signed_value(secret, _auth_token_name, username).decode("utf-8")
-                set_localstorage(_auth_token_name, signed)  # set token to user's web browser
+                signed = create_signed_value(secret, token_name, username).decode("utf-8")
+                set_localstorage(token_name, signed)  # set token to user's web browser
                 break
             else:
                 toast('Authentication failed', color='error')
 
-    if username:
-        username = username.decode('utf8')
     return username
 
 
-def revoke_auth():
-    """Revoke the auth state of current user"""
-    set_localstorage('token', '')
+def revoke_auth(token_name='pywebio_auth_token'):
+    """Revoke the auth state of current user
+
+    :param str token_name: the name of the token to store the auth state in user browser.
+    """
+    set_localstorage(token_name, '')
