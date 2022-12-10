@@ -3,7 +3,7 @@ import html
 import io
 import subprocess
 from functools import partial
-from typing import Union
+from typing import Union, Optional, Sequence
 
 from pywebio.output import *
 from pywebio.output import Output
@@ -16,13 +16,17 @@ __all__ = ['confirm', 'popup_input', 'redirect_stdout', 'run_shell', 'put_logbox
            'put_audio']
 
 
-def confirm(title, content=None, *, timeout=None):
+def confirm(
+        title: str,
+        content: Union[str, Output, Sequence[Union[str, Output]]] = None,
+        *,
+        timeout: int = None
+) -> Optional[bool]:
     """Show a confirmation modal.
 
     :param str title: Model title.
-    :param list/put_xxx()/str content: Model content.
-    :type content: list/str/put_xxx()
-    :param content: The content of the confirmation modal. Can be a string, the put_xxx() calls , or a list of them.
+    :param list/put_xxx()/str content: The content of the confirmation modal.
+        Can be a string, the put_xxx() calls , or a list of them.
     :param None/float timeout: Seconds for operation time out.
     :return: Return `True` when the "CONFIRM" button is clicked,
         return `False` when the "CANCEL" button is clicked,
@@ -55,12 +59,15 @@ def confirm(title, content=None, *, timeout=None):
     return result
 
 
-def popup_input(pins, title='Please fill out the form below'):
+def popup_input(
+        pins: Sequence[Output],
+        title='Please fill out the form below'
+) -> Optional[dict]:
     """Show a form in popup window.
 
-    :param list pins: pin output list.
+    :param list pins: :doc:`pin </pin>` widget list. It can also contain ordinary output widgets.
     :param str title: model title.
-    :return: return the form value as dict, return None when user cancel the form.
+    :return: return the form value as dict, return ``None`` when user cancel the form.
 
     .. exportable-codeblock::
         :name: battery-popup-input
@@ -69,8 +76,9 @@ def popup_input(pins, title='Please fill out the form below'):
         from pywebio_battery import popup_input  # ..demo-only
         # ..demo-only
         form = popup_input([
-            put_input("username", label="Username"),
+            put_input("username", label="User name"),
             put_input("password", type=PASSWORD, label="Password"),
+            put_info("If you forget your password, please contact the administrator."),
         ], "Login")
         put_text("Login info:", form)
     """
@@ -80,6 +88,7 @@ def popup_input(pins, title='Please fill out the form below'):
     pin_names = [
         p.spec['input']['name']
         for p in pins
+        if 'input' in p.spec and 'name' in p.spec['input']
     ]
     action_name = 'action_' + random_str(10)
     pins.append(put_actions(action_name, buttons=[
@@ -140,7 +149,7 @@ def run_shell(cmd: str, output_func=partial(put_text, inline=True), encoding='ut
     return process.poll()
 
 
-def put_logbox(name, height=400, keep_bottom=True) -> Output:
+def put_logbox(name: str, height=400, keep_bottom=True) -> Output:
     r"""Output a logbox widget
 
     .. exportable-codeblock::
@@ -182,14 +191,14 @@ def put_logbox(name, height=400, keep_bottom=True) -> Output:
     return put_html(html)
 
 
-def logbox_append(name, text):
+def logbox_append(name: str, text: str):
     """Append text to a logbox widget"""
     run_js('$("#webio-logbox-%s").append(document.createTextNode(text))' % name, text=str(text))
 
 
 def put_video(src: Union[str, bytes], autoplay: bool = False, loop: bool = False,
-              height: int = None, width: int = None, muted: bool = False, poster: str = None, scope: str = None,
-              position: int = OutputPosition.BOTTOM) -> Output:
+              height: int = None, width: int = None, muted: bool = False, poster: str = None,
+              scope: str = None, position: int = OutputPosition.BOTTOM) -> Output:
     """Output video
 
     :param str/bytes src: Source of video. It can be a string specifying video URL, a bytes-like object specifying

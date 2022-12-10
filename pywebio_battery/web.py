@@ -15,27 +15,27 @@ def get_all_query():
     return query
 
 
-def get_query(name):
+def get_query(name: str):
     """Get URL parameter value"""
     query = eval_js("new URLSearchParams(window.location.search).get(n)", n=name)
     return query
 
 
-def set_localstorage(key, value):
+def set_localstorage(key: str, value: str):
     """Save data to user's web browser
 
     The data is specific to the origin (protocol+domain+port) of the app.
     Different origins use different web browser local storage.
 
-    :param str key: the key you want to create/update.
-    :param str value: the value you want to give the key you are creating/updating.
+    :param key: the key you want to create/update.
+    :param value: the value you want to give the key you are creating/updating.
 
     You can read the value by using :func:`get_localstorage(key) <get_localstorage>`
     """
     run_js("localStorage.setItem(key, value)", key=key, value=value)
 
 
-def get_localstorage(key) -> str:
+def get_localstorage(key: str) -> str:
     """Get the key's value in user's web browser local storage"""
     return eval_js("localStorage.getItem(key)", key=key)
 
@@ -68,13 +68,13 @@ def _init_cookie_client():
         """)
 
 
-def set_cookie(key, value, days=7):
+def set_cookie(key: str, value: str, days=7):
     """Set cookie"""
     _init_cookie_client()
     run_js("setCookie(key, value, days)", key=key, value=value, days=days)
 
 
-def get_cookie(key):
+def get_cookie(key: str):
     """Get cookie"""
     _init_cookie_client()
     return eval_js("getCookie(key)", key=key)
@@ -106,6 +106,8 @@ def basic_auth(verify_func: Callable[[str, str], bool], secret: Union[str, bytes
                                secret="__TODO:_GENERATE_YOUR_OWN_RANDOM_VALUE_HERE__")
         put_text("Hello, %s. You can refresh this page and see what happen" % user_name)
 
+
+    .. versionadded:: 0.4
     """
 
     token = get_localstorage(token_name)  # get token from user's web browser
@@ -146,7 +148,9 @@ def custom_auth(login_func: Callable[[], str], secret=Union[str, bytes], expire_
     :param int expire_days: how many days the auth state can keep valid.
        After this time,authed users need to log in again.
     :param str token_name: the name of the token to store the auth state in user browser.
-    :return str: username of the current authed user
+    :return str: username of the current authed user.
+
+    .. versionadded:: 0.4
     """
 
     token = get_localstorage(token_name)  # get token from user's web browser
@@ -172,5 +176,7 @@ def revoke_auth(token_name='pywebio_auth_token'):
     """Revoke the auth state of current user
 
     :param str token_name: the name of the token to store the auth state in user browser.
+
+    .. versionadded:: 0.4
     """
     set_localstorage(token_name, '')
