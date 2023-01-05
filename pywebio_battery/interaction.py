@@ -3,7 +3,7 @@ import html
 import io
 import subprocess
 from functools import partial
-from typing import Union, Optional, Sequence
+from typing import Union, Optional, Sequence, Mapping, Tuple, Callable, Dict
 
 from pywebio.output import *
 from pywebio.output import Output
@@ -60,13 +60,21 @@ def confirm(
 
 
 def popup_input(
-        pins: Sequence[Output],
-        title='Please fill out the form below'
+        pins: Union[Sequence[Output], Output],
+        title='Please fill out the form below',
+        validate: Callable[[Dict], Optional[Tuple[str, str]]] = None,
+        popup_size: str = PopupSize.NORMAL,
+        cancelable: bool = False
 ) -> Optional[dict]:
     """Show a form in popup window.
 
     :param list pins: :doc:`pin </pin>` widget list. It can also contain ordinary output widgets.
     :param str title: model title.
+    :param callable validate: validation function for the form.
+        Same as ``validate`` parameter in :func:`input_group() <pywebio.input.input_group()>`
+    :param str popup_size: popup window size. See ``size`` parameter of :func:`popup() <pywebio.output.popup()>`
+    :param bool cancelable: Whether the form can be cancelled. Default is ``False``.
+        If ``cancelable=True``, a "Cancel" button will be displayed at the bottom of the form.
     :return: return the form value as dict, return ``None`` when user cancel the form.
 
     .. exportable-codeblock::
@@ -75,11 +83,19 @@ def popup_input(
 
         from pywebio_battery import popup_input  # ..demo-only
         # ..demo-only
-        form = popup_input([
-            put_input("username", label="User name"),
-            put_input("password", type=PASSWORD, label="Password"),
-            put_info("If you forget your password, please contact the administrator."),
-        ], "Login")
+        def check_password(form):
+            if len(form['password']) < 6:
+                return 'password', 'password length must greater than 6'
+
+        form = popup_input(
+            [
+                put_input("username", label="Username"),
+                put_input("password", type=PASSWORD, label="Password"),
+                put_info("If you forget your password, please contact the administrator."),
+            ],
+            title="Login",
+            validate=check_password
+        )
         put_text("Login info:", form)
     """
     if not isinstance(pins, list):
@@ -91,16 +107,35 @@ def popup_input(
         if 'input' in p.spec and 'name' in p.spec['input']
     ]
     action_name = 'action_' + random_str(10)
-    pins.append(put_actions(action_name, buttons=[
-        {'label': 'Submit', 'value': True},
-        {'label': 'Cancel', 'value': False, 'color': 'danger'},
-    ]))
-    popup(title=title, content=pins, closable=False)
+    action_buttons = [{'label': 'Submit', 'value': True}]
+    if cancelable:
+        action_buttons.append({'label': 'Cancel', 'value': False, 'color': 'danger'})
+    pins.append(put_actions(action_name, buttons=action_buttons))
+    popup(title=title, content=pins, closable=False, size=popup_size)
 
-    change_info = pin_wait_change(action_name)
     result = None
-    if change_info['name'] == action_name and change_info['value']:
-        result = {name: pin[name] for name in pin_names}
+    previous_invalid_field = None
+    while True:
+        change_info = pin_wait_change(action_name)
+        if change_info and change_info['name'] == action_name:
+            if not change_info['value']:  # cancel
+                break
+            result = {name: pin[name] for name in pin_names}
+            if not validate:
+                break
+            error_info = validate(result)
+            if not error_info:
+                break
+            try:
+                name, error_msg = error_info
+            except Exception:
+                raise ValueError("The `validate` function for popup_input() must "
+                                 "return `(name, error_msg)` when validation failed.") from None
+            pin_update(name, valid_status=False, invalid_feedback=error_msg)
+            if previous_invalid_field and previous_invalid_field != name:
+                pin_update(previous_invalid_field, valid_status=0)  # remove the previous invalid status
+            previous_invalid_field = name
+
     close_popup()
     return result
 
