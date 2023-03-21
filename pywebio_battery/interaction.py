@@ -13,7 +13,7 @@ from pywebio.session import *
 from pywebio.utils import random_str
 
 __all__ = ['confirm', 'popup_input', 'redirect_stdout', 'run_shell', 'put_logbox', 'logbox_append', 'put_video',
-           'put_audio']
+           'put_audio', 'wait_scroll_to_bottom']
 
 
 def confirm(
@@ -310,3 +310,42 @@ def put_audio(src: Union[str, bytes], autoplay: bool = False, loop: bool = False
 
     tag = r'<audio src="{src}" {tags} controls preload="metadata"><audio/>'.format(src=src, tags=tags)
     return put_html(tag, scope=scope, position=position)
+
+
+def wait_scroll_to_bottom(threshold: float = 10, timeout: float = None) -> bool:
+    """Wait until the page is scrolled to bottom.
+
+    This function is useful to achieve infinite scrolling.
+
+    :param float threshold: If the distance (in pixels) of the browser's viewport from the bottom of the page is less
+        than the threshold, it is considered to reach the bottom
+    :param float timeout: Timeout in seconds. The maximum time to wait for the page to scroll to bottom.
+        Default is None, which means no timeout.
+    :return: Return ``True`` if the page is scrolled to bottom, return ``False`` only when timeout.
+
+    Example:
+
+    .. exportable-codeblock::
+        :name: wait_scroll_to_bottom
+        :summary: `wait_scroll_to_bottom()` usage
+
+        put_text('This is long text. Scroll to bottom to continue.\n' * 100)
+        while True:
+            wait_scroll_to_bottom()
+            put_text("New generated content\n"*20)
+
+    .. versionadded:: 0.5
+    """
+    return eval_js("""
+        (function(){
+            if($(window).scrollTop() + window.innerHeight > $(document).height() - threshold) return true;
+            return new Promise(function(resolve){
+                $(window).on('scroll', function(e){
+                    if($(window).scrollTop() + window.innerHeight > $(document).height() - threshold){
+                        resolve(true);
+                    }
+                });
+                if(timeout) setTimeout(function(){ resolve(false); }, timeout*1000);
+            });
+        })();
+    """, threshold=threshold, timeout=timeout)
