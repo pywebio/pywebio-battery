@@ -8,7 +8,7 @@
    ``pywebio_battery`` is an extension package of PyWebIO, you must install it before using it.
    To install this package, run ``pip3 install -U pywebio-battery``
 
-Functions list
+Functions index
 -----------------
 
 
@@ -19,6 +19,9 @@ Interaction related
 
    * - Function name
      - Description
+
+   * - `file_picker <pywebio_battery.file_picker>`
+     - Local file picker
 
    * - `confirm <pywebio_battery.confirm>`
      - Confirmation modal
@@ -66,13 +69,10 @@ Web application related
 """
 from .interaction import *
 from .web import *
+from .file_picker import file_picker
+
+# make Sphinx can auto generate API docs for this package
 from .interaction import __all__ as interaction_all
 from .web import __all__ as web_all
 
-__all__ = interaction_all + web_all
-
-# Set default logging handler to avoid "No handler found" warnings.
-import logging
-
-logging.getLogger(__name__).addHandler(logging.NullHandler())
-del logging
+__all__ = ['file_picker'] + interaction_all + web_all
