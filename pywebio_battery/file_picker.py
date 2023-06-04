@@ -127,7 +127,7 @@ class FilePicker:
         path = pathlib.Path(path)
         if path.is_dir():
             if not path.is_relative_to(self.root_path):
-                toast(f"No permission to access the path", color="error")
+                toast("No permission to access the path", color="error")
                 return
             self.show_path(path)
             datatable_update(self.instance_id, self.path_info(path))
@@ -171,6 +171,13 @@ def file_picker(
     :param show_hidden_files: Whether to show hidden files/folders.
     :return: The selected file path or a list of file paths.
         ``None`` if the user cancels the file picker.
+
+    .. exportable-codeblock::
+        :name: battery-file_picker
+        :summary: Select files from the local file system
+
+        files = file_picker('.', multiple=True, accept='py')
+        put_text(files)
     """
     no_animation = eval_js("document.body.classList.contains('no-animation')")
     if not no_animation:
