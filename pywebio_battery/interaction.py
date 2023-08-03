@@ -284,6 +284,13 @@ def put_audio(src: Union[str, bytes], autoplay: bool = False, loop: bool = False
     :param str/bytes src: Source of audio. It can be a string specifying video URL, a bytes-like object specifying
         the binary content of the audio.
     :param bool autoplay: Whether to autoplay the audio.
+
+      .. note::
+
+        Web browsers typically don't allow autoplaying audio without user interaction. If you want to autoplay audio,
+        one way is to call `put_audio(autoplay=True)` in a callback function of a button.
+        See also: https://developer.mozilla.org/en-US/docs/Web/Media/Autoplay_guide
+
     :param bool loop: If True, the browser will automatically seek back to the start upon reaching the end of the audio.
     :param bool muted: If set, the audio will be initially silenced.
     :param scope: The scope of the video. It can be ``"session"`` or ``"page"``. If not specified,
