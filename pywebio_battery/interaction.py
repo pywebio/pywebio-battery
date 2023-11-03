@@ -169,6 +169,14 @@ def run_shell(cmd: str, output_func=partial(put_text, inline=True), encoding='ut
 
     .. versionchanged:: 0.4
        add ``encoding`` parameter and return code
+
+    .. exportable-codeblock::
+        :name: battery-run-shell
+        :summary: Run shell and output to code block
+
+        cmd = "ls -l"
+        put_logbox('shell_output')
+        run_shell(cmd, output_func=lambda msg: logbox_append('shell_output', msg))
     """
     process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     try:
