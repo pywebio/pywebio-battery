@@ -116,9 +116,10 @@ def popup_input(
     result = None
     previous_invalid_field = None
     while True:
-        change_info = pin_wait_change(action_name)
+        result = None
+        change_info = pin_wait_change(action_name)  # wait Submit / Cancel button click
         if change_info and change_info['name'] == action_name:
-            if not change_info['value']:  # cancel
+            if not change_info['value']:  # Cancel button click
                 break
             result = {name: pin[name] for name in pin_names}
             if not validate:
