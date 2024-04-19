@@ -240,6 +240,11 @@ def logbox_append(name: str, text: str):
     run_js('$("#webio-logbox-%s").append(document.createTextNode(text))' % name, text=str(text))
 
 
+def logbox_clear(name: str):
+    """Clear all contents of a logbox widget"""
+    pywebio.session.run_js('$("#webio-logbox-%s").empty()' % name)
+
+
 def put_video(src: Union[str, bytes], autoplay: bool = False, loop: bool = False,
               height: int = None, width: int = None, muted: bool = False, poster: str = None,
               scope: str = None, position: int = OutputPosition.BOTTOM) -> Output:
