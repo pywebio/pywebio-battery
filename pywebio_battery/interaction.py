@@ -12,8 +12,8 @@ from pywebio.pin import *
 from pywebio.session import *
 from pywebio.utils import random_str
 
-__all__ = ['confirm', 'popup_input', 'redirect_stdout', 'run_shell', 'put_logbox', 'logbox_append', 'put_video',
-           'put_audio', 'wait_scroll_to_bottom']
+__all__ = ['confirm', 'popup_input', 'redirect_stdout', 'run_shell', 'put_logbox', 'logbox_append', 'logbox_clear', 
+           'put_video', 'put_audio', 'wait_scroll_to_bottom']
 
 
 def confirm(
