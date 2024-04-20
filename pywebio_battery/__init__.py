@@ -35,7 +35,7 @@ Interaction related
    * - `run_shell <pywebio_battery.run_shell>`
      - Run command in shell
 
-   * - `put_logbox <pywebio_battery.put_logbox>`, `logbox_append <pywebio_battery.logbox_append>`
+   * - `put_logbox <pywebio_battery.put_logbox>`, `logbox_append <pywebio_battery.logbox_append>`, `logbox_clear <pywebio_battery.logbox_clear>`
      - Logbox widget
 
    * - `put_video <pywebio_battery.put_video>`

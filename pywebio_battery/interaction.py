@@ -12,8 +12,8 @@ from pywebio.pin import *
 from pywebio.session import *
 from pywebio.utils import random_str
 
-__all__ = ['confirm', 'popup_input', 'redirect_stdout', 'run_shell', 'put_logbox', 'logbox_append', 'put_video',
-           'put_audio', 'wait_scroll_to_bottom']
+__all__ = ['confirm', 'popup_input', 'redirect_stdout', 'run_shell', 'put_logbox', 'logbox_append', 'logbox_clear', 
+           'put_video', 'put_audio', 'wait_scroll_to_bottom']
 
 
 def confirm(
@@ -238,6 +238,11 @@ def put_logbox(name: str, height=400, keep_bottom=True) -> Output:
 def logbox_append(name: str, text: str):
     """Append text to a logbox widget"""
     run_js('$("#webio-logbox-%s").append(document.createTextNode(text))' % name, text=str(text))
+
+
+def logbox_clear(name: str):
+    """Clear all contents of a logbox widget"""
+    pywebio.session.run_js('$("#webio-logbox-%s").empty()' % name)
 
 
 def put_video(src: Union[str, bytes], autoplay: bool = False, loop: bool = False,
