@@ -43,7 +43,9 @@ Interaction related
 
    * - `put_audio <pywebio_battery.put_audio>`
      - Output audio
-
+   
+   * - `wait_scroll_to_bottom <pywebio_battery.wait_scroll_to_bottom>`
+     - Wait the page is scrolled to bottom
 
 Web application related
 ^^^^^^^^^^^^^^^^^^^^^^^^^^

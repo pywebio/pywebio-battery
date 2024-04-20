@@ -334,7 +334,7 @@ def put_audio(src: Union[str, bytes], autoplay: bool = False, loop: bool = False
 
 
 def wait_scroll_to_bottom(threshold: float = 10, timeout: float = None) -> bool:
-    """Wait until the page is scrolled to bottom.
+    r"""Wait until the page is scrolled to bottom.
 
     This function is useful to achieve infinite scrolling.
 
