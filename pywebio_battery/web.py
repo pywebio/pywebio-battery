@@ -5,7 +5,7 @@ from pywebio.session import get_current_session
 from tornado.web import create_signed_value, decode_signed_value
 from typing import *
 
-__all__ = ['get_all_query', 'get_query', 'set_localstorage', 'get_localstorage', 'set_cookie', 'get_cookie',
+__all__ = ['get_all_query', 'get_query', 'set_localstorage', 'get_localstorage', 'clear_localstorage', 'set_cookie', 'get_cookie',
            'basic_auth', 'custom_auth', 'revoke_auth']
 
 
@@ -39,6 +39,9 @@ def get_localstorage(key: str) -> str:
     """Get the key's value in user's web browser local storage"""
     return eval_js("localStorage.getItem(key)", key=key)
 
+def clear_localstorage():
+    """Clear user's web browser local storage"""
+    return eval_js("localStorage.clear()")
 
 def _init_cookie_client():
     session = get_current_session()
