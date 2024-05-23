@@ -200,11 +200,13 @@ def put_logbox(name: str, height=400, keep_bottom=True) -> Output:
         :name: battery-put-logbox
         :summary: Logbox widget
 
-        from pywebio_battery import put_logbox, logbox_append   # ..demo-only
+        from pywebio.output import put_button
+        from pywebio_battery import put_logbox, logbox_append, logbox_clear   # ..demo-only
         # ..demo-only
         import time
 
         put_logbox("log")
+        put_button('Clear', lambda: logbox_clear("log"))
         while True:
             logbox_append("log", f"{time.time()}\n")
             time.sleep(0.2)
