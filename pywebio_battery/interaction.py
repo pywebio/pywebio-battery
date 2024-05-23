@@ -242,7 +242,7 @@ def logbox_append(name: str, text: str):
 
 def logbox_clear(name: str):
     """Clear all contents of a logbox widget"""
-    pywebio.session.run_js('$("#webio-logbox-%s").empty()' % name)
+    run_js('$("#webio-logbox-%s").empty()' % name)
 
 
 def put_video(src: Union[str, bytes], autoplay: bool = False, loop: bool = False,

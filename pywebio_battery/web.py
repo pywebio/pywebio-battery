@@ -39,9 +39,11 @@ def get_localstorage(key: str) -> str:
     """Get the key's value in user's web browser local storage"""
     return eval_js("localStorage.getItem(key)", key=key)
 
+
 def clear_localstorage():
     """Clear user's web browser local storage"""
     return eval_js("localStorage.clear()")
+
 
 def _init_cookie_client():
     session = get_current_session()
