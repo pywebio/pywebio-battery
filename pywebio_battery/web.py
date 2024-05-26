@@ -5,13 +5,19 @@ from pywebio.session import get_current_session
 from tornado.web import create_signed_value, decode_signed_value
 from typing import *
 
-__all__ = ['get_all_query', 'get_query', 'set_localstorage', 'get_localstorage', 'clear_localstorage', 'set_cookie', 'get_cookie',
+__all__ = ['get_all_query', 'get_all_keys', 'get_query', 'set_localstorage', 'get_localstorage', 'clear_localstorage', 'set_cookie', 'get_cookie',
            'basic_auth', 'custom_auth', 'revoke_auth']
 
 
 def get_all_query():
     """Get URL parameter (also known as "query strings" or "URL query parameters") as a dict"""
     query = eval_js("Object.fromEntries(new URLSearchParams(window.location.search))")
+    return query
+
+
+def get_all_keys():
+    """Get all parameter keys"""
+    query = eval_js("Object.keys(localStorage)")
     return query
 
 
